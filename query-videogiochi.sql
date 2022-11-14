@@ -1,110 +1,162 @@
 --QUERY SELECT
 
 --1- Selezionare tutte le software house americane (3)
---SELECT *
---FROM software_houses
---WHERE country = 'United States'
+SELECT *
+FROM software_houses
+WHERE country = 'United States'
 
 --2- Selezionare tutti i giocatori della città di 'Rogahnland' (2)
---SELECT *
---FROM players
---WHERE city = 'Rogahnland'
+SELECT *
+FROM players
+WHERE city = 'Rogahnland'
 
 --3- Selezionare tutti i giocatori il cui nome finisce per "a" (220)
---SELECT *
---FROM players
---WHERE name LIKE '%a'
+SELECT *
+FROM players
+WHERE name LIKE '%a'
 
 --4- Selezionare tutte le recensioni scritte dal giocatore con ID = 800 (11)
---SELECT *
---FROM reviews
---WHERE player_id = 800
+SELECT *
+FROM reviews
+WHERE player_id = 800
 
 --5- Contare quanti tornei ci sono stati nell'anno 2015 (9)
---SELECT COUNT(year) as contatore
---FROM tournaments
---WHERE year = 2015
+SELECT COUNT(year) as contatore
+FROM tournaments
+WHERE year = 2015
 
 --6- Selezionare tutti i premi che contengono nella descrizione la parola 'facere' (2)
---SELECT *
---FROM awards
---WHERE description LIKE '%facere%'
+SELECT *
+FROM awards
+WHERE description LIKE '%facere%'
 
 --7- Selezionare tutti i videogame che hanno la categoria 2 (FPS) o 6 (RPG), mostrandoli una sola volta (del videogioco vogliamo solo l'ID) (287)
---SELECT DISTINCT videogame_id
---FROM category_videogame
---WHERE category_id = 2
---OR category_id = 6
+SELECT DISTINCT videogame_id
+FROM category_videogame
+WHERE category_id = 2
+OR category_id = 6
 
 --8- Selezionare tutte le recensioni con voto compreso tra 2 e 4 (2947)
---SELECT *
---FROM reviews
---WHERE rating >= 2 
---AND rating <= 4
+SELECT *
+FROM reviews
+WHERE rating >= 2 
+AND rating <= 4
 
 --9- Selezionare tutti i dati dei videogiochi rilasciati nell'anno 2020 (46)
---SELECT *
---FROM videogames
---WHERE release_date like '%2020%'
+SELECT *
+FROM videogames
+WHERE release_date like '%2020%'
 
 --10- Selezionare gli id dei videogame che hanno ricevuto almeno una recensione da 5 stelle, mostrandoli una sola volta (443)
---SELECT DISTINCT videogame_id
---FROM reviews
---WHERE rating = 5
+SELECT DISTINCT videogame_id
+FROM reviews
+WHERE rating = 5
 
 --*********** BONUS ***********
 
 --11- Selezionare il numero e la media delle recensioni per il videogioco con ID = 412 (review number = 12, avg_rating = 3)
---SELECT COUNT(rating) as contatore, AVG(rating) as media
---FROM reviews
---WHERE videogame_id = 412
+SELECT COUNT(rating) as contatore, AVG(rating) as media
+FROM reviews
+WHERE videogame_id = 412
 
 
 --12- Selezionare il numero di videogame che la software house con ID = 1 ha rilasciato nel 2018 (13)
---SELECT COUNT(id) as contatore
---from videogames
---where software_house_id = 1
---and release_date like '%2018%'
+SELECT COUNT(id) as contatore
+from videogames
+where software_house_id = 1
+and release_date like '%2018%'
 
 --QUERY CON GROUPBY
 
 --1- Contare quante software house ci sono per ogni paese (3)
---select *
---from software_houses
+select *
+from software_houses
 
---select count (id) as contatore, country
---from software_houses
---group by country
+select count (id) as contatore, country
+from software_houses
+group by country
 
 --2- Contare quante recensioni ha ricevuto ogni videogioco (del videogioco vogliamo solo l'ID) (500)
---select count (id) as contatore, videogame_id
---from reviews
---group by videogame_id
+select count (id) as contatore, videogame_id
+from reviews
+group by videogame_id
 
 --3- Contare quanti videogiochi hanno ciascuna classificazione PEGI (della classificazione PEGI vogliamo solo l'ID) (13)
---select count (id) as contatore, videogame_id
---from reviews
---group by videogame_id
+select pegi_label_id, count(videogame_id) as number_videogames
+from pegi_label_videogame
+group by pegi_label_id
 
 --4- Mostrare il numero di videogiochi rilasciati ogni anno (11)
+select DATEPART(year, release_date), count(id) as number_videogames
+from videogames
+group by DATEPART(year, release_date)
 
 --5- Contare quanti videogiochi sono disponbiili per ciascun device (del device vogliamo solo l'ID) (7)
+select device_id, count(videogame_id) as number_videogames
+from device_videogame
+group by device_id
 
 --6- Ordinare i videogame in base alla media delle recensioni (del videogioco vogliamo solo l'ID) (500)
+select videogame_id, AVG(rating) as avg_rating
+from reviews
+group by videogame_id
+order by avg_rating
 
 --QUERY CON JOIN
 
 --1- Selezionare i dati di tutti giocatori che hanno scritto almeno una recensione, mostrandoli una sola volta (996)
+select distinct player_id, name, lastname, nickname, city
+from reviews
+inner join players
+on players.id = reviews.player_id
 
 --2- Sezionare tutti i videogame dei tornei tenuti nel 2016, mostrandoli una sola volta (226)
+select distinct videogame_id
+from tournament_videogame
+inner join tournaments
+on tournaments.id = tournament_videogame.tournament_id
+where tournaments.year like '%2016%'
 
 --3- Mostrare le categorie di ogni videogioco (1718)
+select videogame_id, category_id, categories.name, videogames.name
+from category_videogame
+inner join videogames
+on videogames.id = category_videogame.videogame_id
+inner join categories
+on categories.id = category_videogame.category_id
 
 --4- Selezionare i dati di tutte le software house che hanno rilasciato almeno un gioco dopo il 2020, mostrandoli una sola volta (6)
+select distinct software_house_id, software_houses.name, tax_id, city, country
+from videogames
+inner join software_houses
+on software_houses.id = videogames.software_house_id
+where DATEPART(year, release_date) > 2020
 
 --5- Selezionare i premi ricevuti da ogni software house per i videogiochi che ha prodotto (55)
+select award_id, awards.name as award_name, software_houses.name as software_house_name, videogames.name as videogame_name
+from award_videogame
+inner join videogames
+on videogames.id = award_videogame.videogame_id
+inner join software_houses
+on software_houses.id = videogames.software_house_id
+inner join awards
+on awards.id = award_videogame.award_id
+order by software_house_name
 
 --6- Selezionare categorie e classificazioni PEGI dei videogiochi che hanno ricevuto recensioni da 4 e 5 stelle, mostrandole una sola volta (3363)
+select distinct categories.name as category_name, pegi_labels.name as pegi_name, videogames.name as videogame_name
+from reviews
+inner join videogames
+on videogames.id = reviews.videogame_id
+inner join category_videogame
+on category_videogame.videogame_id = videogames.id
+inner join categories
+on categories.id = category_videogame.category_id
+inner join pegi_label_videogame
+on pegi_label_videogame.videogame_id = videogames.id
+inner join pegi_labels
+on pegi_labels.id = pegi_label_videogame.pegi_label_id
+WHERE reviews.rating >=4
 
 --7- Selezionare quali giochi erano presenti nei tornei nei quali hanno partecipato i giocatori il cui nome inizia per 'S' (474)
 
