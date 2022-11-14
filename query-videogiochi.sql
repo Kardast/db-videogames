@@ -159,11 +159,47 @@ on pegi_labels.id = pegi_label_videogame.pegi_label_id
 WHERE reviews.rating >=4
 
 --7- Selezionare quali giochi erano presenti nei tornei nei quali hanno partecipato i giocatori il cui nome inizia per 'S' (474)
+select distinct videogames.name
+from tournament_videogame
+
+inner join tournaments
+on tournaments.id = tournament_videogame.tournament_id
+
+inner join videogames
+on videogames.id = tournament_videogame.videogame_id
+
+inner join player_tournament
+on player_tournament.tournament_id = tournaments.id
+
+inner join players
+on players.id = player_tournament.player_id
+
+where players.name like 'S%'
+
 
 --8- Selezionare le città in cui è stato giocato il gioco dell'anno del 2018 (36)
+select distinct tournaments.city
+from tournament_videogame
+inner join tournaments on tournaments.id = tournament_videogame.tournament_id
+inner join videogames on videogames.id = tournament_videogame.videogame_id
+inner join award_videogame on award_videogame.videogame_id = videogames.id
+inner join awards on awards.id = award_videogame.award_id
+where award_videogame.year = 2018
+
+
 
 --9- Selezionare i giocatori che hanno giocato al gioco più atteso del 2018 in un torneo del 2019 (3306)
-
+select distinct players.name, tournaments.name
+from players
+inner join player_tournament on player_tournament.player_id = players.id
+inner join tournaments on tournaments.id = player_tournament.tournament_id
+inner join tournament_videogame on tournament_videogame.videogame_id = tournaments.id
+inner join videogames on videogames.id = tournament_videogame.videogame_id
+inner join award_videogame on videogames.id = award_videogame.videogame_id
+inner join awards on awards.id = award_videogame.award_id
+where awards.name = 'Gioco più atteso'
+and award_videogame.year = 2018
+and tournaments.year = 2019
 
 --*********** BONUS ***********
 
