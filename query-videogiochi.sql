@@ -69,10 +69,22 @@
 --QUERY CON GROUPBY
 
 --1- Contare quante software house ci sono per ogni paese (3)
+--select *
+--from software_houses
+
+--select count (id) as contatore, country
+--from software_houses
+--group by country
 
 --2- Contare quante recensioni ha ricevuto ogni videogioco (del videogioco vogliamo solo l'ID) (500)
+--select count (id) as contatore, videogame_id
+--from reviews
+--group by videogame_id
 
 --3- Contare quanti videogiochi hanno ciascuna classificazione PEGI (della classificazione PEGI vogliamo solo l'ID) (13)
+--select count (id) as contatore, videogame_id
+--from reviews
+--group by videogame_id
 
 --4- Mostrare il numero di videogiochi rilasciati ogni anno (11)
 
